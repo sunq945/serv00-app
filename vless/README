@@ -1,6 +1,7 @@
 # 1：vps一键安装vless命令
 
 vps一键脚本
+
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh)
 ```
