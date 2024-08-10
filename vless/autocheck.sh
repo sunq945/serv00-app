@@ -34,7 +34,7 @@ WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/proxy"
 run_vless() { 
 
   if [ -f "./vless/app.js" ] && [ -f "./config.json" ] ; then
-      nohup node ./vless/app.js &
+      nohup node ./vless/app.js  >/dev/null 2>&1 &
   else
     msg="vless/app.js or  ../config.json is not exist,skiping runing"
     purple "$msg"
