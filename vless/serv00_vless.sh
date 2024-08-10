@@ -103,8 +103,6 @@ download_vless() {
   $(wget https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/vless.zip -O vless.zip)
   if [ -f ./vless.zip ];then
     echo -e "${green} 下载vless.zip成功，正在解压...${re}"
-    #n_files=$(zipinfo vless.zip |grep ^-|wc -l|sed 's/ //g')
-    echo -e "${yellow}vless.zip共有文件$n_files 个 ${re}"
     #unzip -o vless.zip | tqdm --desc extracted --unit "files" --unit_scale --total $n_files > /dev/null
     unzip -o vless.zip | awk 'BEGIN {ORS=" "} {print "."}'    
     #unzip -q vless.zip
