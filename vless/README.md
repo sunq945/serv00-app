@@ -10,7 +10,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/
 
 
 # 2：一键下载并执行检测app.js进程脚本
-*可以添加到serv00的cron job上作为定时检查任务
+* 可以添加到serv00的cron job上作为定时检查任务
 
 自动检测脚本（autocheck.sh）
 ```
