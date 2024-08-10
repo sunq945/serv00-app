@@ -103,7 +103,11 @@ download_vless() {
   $(wget https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/vless.zip -O vless.zip)
   if [ -f ./vless.zip ];then
     echo -e "${green} 下载vless.zip成功，正在解压...${re}"
+    #n_files=$(zipinfo vless.zip |grep ^-|wc -l|sed 's/ //g')
+    #echo -e "${yellow}vless.zip共有文件$n_files 个 ${re}"
+    #unzip -o vless.zip | tqdm --desc extracted --unit "files" --unit_scale --total $n_files > /dev/null
     unzip -o vless.zip | awk 'BEGIN {ORS=" "} {print "."}'    
+    #unzip -q vless.zip
     echo -e "${green} 解压完毕${re}"
     rm -rf vless.zip
     echo -e "${yellow} vless.zip is removed.${re}"
@@ -140,7 +144,7 @@ run_vless() {
     sleep 3
   if [ -f "./vless/app.js" ]; then
         ps aux | grep "vless/app.js" | grep -v grep | awk '{print $2}' | xargs kill -9        
-        nohup node ./vless/app.js  & 
+        nohup node ./vless/app.js  >/dev/null 2>&1 &
         sleep 3
         pgrep -f "app.js" > /dev/null && green "vless is running" || { red "vless is not running, failed!" ;}
   else
