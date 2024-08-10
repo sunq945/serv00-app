@@ -21,6 +21,8 @@ curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv
 curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/autocheck.sh -o autocheck.sh && chmod +x autocheck.sh && ./autocheck.sh
 ```
 
+该脚本会在账号根目录下生成autocheck.log的日志文件，方便查看运行状态。
+
 # 免责声明
 * 本程序仅供学习了解, 非盈利目的，请于下载后 24 小时内删除, 不得用作任何商业用途, 文字、数据及图片均有所属版权, 如转载须注明来源。
 * 使用本程序必循遵守部署免责声明，使用本程序必循遵守部署服务器所在地、所在国家和用户所在国家的法律法规, 程序作者不对使用者任何不当行为负责。
