@@ -103,6 +103,9 @@ download_vless() {
   $(wget https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/vless.zip -O vless.zip)
   if [ -f ./vless.zip ];then
     echo -e "${green} 下载vless.zip成功，正在解压...${re}"
+    #n_files=$(zipinfo vless.zip |grep ^-|wc -l|sed 's/ //g')
+    echo -e "${yellow}vless.zip共有文件$n_files 个 ${re}"
+    #unzip -o vless.zip | tqdm --desc extracted --unit "files" --unit_scale --total $n_files > /dev/null
     unzip -o vless.zip | awk 'BEGIN {ORS=" "} {print "."}'    
     #unzip -q vless.zip
     echo -e "${green} 解压完毕${re}"
@@ -149,9 +152,29 @@ run_vless() {
   fi
 }
 
+urlencode() {
+  LC_ALL=C awk -- '
+    BEGIN {
+      for (i = 1; i <= 255; i++) hex[sprintf("%c", i)] = sprintf("%%%02X", i)
+    }
+    function urlencode(s,  c,i,r,l) {
+      l = length(s)
+      for (i = 1; i <= l; i++) {
+        c = substr(s, i, 1)
+        r = r "" (c ~ /^[-._~0-9a-zA-Z]$/ ? c : hex[c])
+      }
+      return r
+    }
+    BEGIN {
+      for (i = 1; i < ARGC; i++)
+        print urlencode(ARGV[i])
+    }' "$@"
+}
+
+
 get_links(){
 cat > vless_link.txt <<EOF
-vless://$(echo "$UUID@$MYDOMAIN:$vless_port?encryption=$CFG_ENCRYPTION&security=$CFG_SECURITY&type=$CFG_TYPE&host=$CFG_HOST&path=$CFG_PATH#$CFG_REMARKS")
+vless://$(echo "$UUID@$MYDOMAIN:$PORT?encryption=$CFG_ENCRYPTION&security=$CFG_SECURITY&type=$CFG_TYPE&host=$CFG_HOST&path=$(urlencode $CFG_PATH)#$CFG_REMARKS")
 EOF
 echo -e "${green} 已生成vless节点，链接如下： ${re}"
 cat vless_link.txt
