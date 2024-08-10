@@ -1,10 +1,14 @@
 # 1：vps一键安装vless命令
 
+
 vps一键脚本
-
-
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/sunq945/Sing-box/main/sb_serv00.sh)
+```
+
+ssh综合工具箱一键脚本
+```
+curl -fsSL https://raw.githubusercontent.com/eooce/ssh_tool/main/ssh_tool.sh -o ssh_tool.sh && chmod +x ssh_tool.sh && ./ssh_tool.sh
 ```
 
 一键下载并执行autocheck脚本 (目前不支持ARGO) __(可以添加到serv00的cron job上作为定时检查任务)__
