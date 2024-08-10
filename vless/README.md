@@ -1,12 +1,16 @@
 # 1：vps一键命令
-* 一键安装到serv00
+* 第一种方式：一键安装到serv00
 
 
 vps一键脚本
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh)
 ```
-
+* 第一种方式：下载到本地后再进行自动安装
+  
+```
+curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh -o serv00_vless.sh && chmod +x serv00_vless.sh && ./serv00_vless.sh
+```
 
 
 # 2：一键下载并执行检测app.js进程脚本
