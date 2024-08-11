@@ -17,7 +17,6 @@ HOSTNAME=$(hostname)
 
 BASH_SOURCE="$0"
 appname="vless"
-
 LOGS_DIR="/usr/home/$USER/logs"
 [ -d "$LOGS_DIR" ] || (mkdir -p "$LOGS_DIR" && chmod 755 "$LOGS_DIR")
 
@@ -29,15 +28,14 @@ printLog(){
     echo "$log_str" >> $LOGS_DIR/$filename.log
 }
 
-WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/proxy"
+WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/vless"
 
 # running files
 run_vless() { 
-
-  if [ -f "./vless/app.js" ] && [ -f "./config.json" ] ; then
+  if [ -f "./vless/app.js" ] && [ -f "./vless_config.json" ] ; then
       nohup node ./vless/app.js  >/dev/null 2>&1 &
   else
-    msg="vless/app.js or  ../config.json is not exist,skiping runing"
+    msg="vless/app.js or vless_config.json is not exist,skiping runing"
     purple "$msg"
     printStatus "$msg"
   fi
