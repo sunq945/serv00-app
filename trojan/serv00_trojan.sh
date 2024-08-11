@@ -61,7 +61,7 @@ uninstall_trojan() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
-          ps aux | grep "xray" | grep -v grep | awk '{print $2}' | xargs kill -9
+          ps aux | grep -f "trojan_config" | grep -v grep | awk '{print $2}' | xargs kill -9
           rm -rf $WORKDIR
            echo -e "${green} 卸载完成 ${re}"
           ;;
