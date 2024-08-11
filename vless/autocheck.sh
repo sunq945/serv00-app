@@ -17,6 +17,7 @@ HOSTNAME=$(hostname)
 
 BASH_SOURCE="$0"
 appname="vless"
+
 LOGS_DIR="/usr/home/$USER/logs"
 [ -d "$LOGS_DIR" ] || (mkdir -p "$LOGS_DIR" && chmod 755 "$LOGS_DIR")
 
