@@ -16,7 +16,7 @@ HOSTNAME=$(hostname)
 
 
 BASH_SOURCE="$0"
-appname="xray"
+appname="vmess"
 
 
 
@@ -28,10 +28,10 @@ printLog(){
     echo "$log_str" >> ~/$filename.log
 }
 
-WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/xray"
+WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/vmess"
 # running files
 run_vless() { 
-  if [ -f "./xray" ] && [ -f "./checkvmess.shconfig.json" ]; then
+  if [ -f "./xray" ] && [ -f "./vmess_config.json" ]; then
       nohup ./xray -c config.json >/dev/null 2>&1 &
   else
     msg="xray or config.json is not exist,skiping runing"
@@ -46,16 +46,16 @@ printStatus(){
 
 main(){
     cd $WORKDIR
-    result=$(pgrep -f "xray" 2> /dev/null)
+    result=$(pgrep -f "vmess_config.json" 2> /dev/null)
     if [ -z ${result} ]; then
-      red "xray is not running, restarting..."
-      pkill -f "xray" 
+      red "vmess is not running, restarting..."
+      pkill -f "vmess_config.json" 
       run_vless 
       sleep 2
-      pgrep -f "xray" >/dev/null && { green "xray restart ok"; printStatus "restart ok" ;} || { purple "xray restart failed";  printStatus "restart failed"; }
+      pgrep -f "vmess_config.json" >/dev/null && { green "vmess restart ok"; printStatus "restart ok" ;} || { purple "vmess restart failed";  printStatus "restart failed"; }
   
     else
-      green "xray is running"
+      green "vmess is running"
       printStatus "running" 
     fi;    
     
