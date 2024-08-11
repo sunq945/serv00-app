@@ -16,7 +16,7 @@ curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/frps/serv0
 # 2：一键下载并执行检测app.js进程脚本
 * 可以添加到serv00的cron job上作为定时检查任务
 
-下载自动检测脚本（autocheck.sh）到本地并自动运行：
+下载自动检测脚本（checkfrps.sh）到本地并自动运行：
 ```
 curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/frps/checkfrps.sh -o checkfrps.sh && chmod +x checkfrps.sh && ./checkfrps.sh
 ```
