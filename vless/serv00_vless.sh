@@ -211,7 +211,7 @@ menu() {
    echo  "==============="
    green "3. 查看节点信息"
    echo  "==============="
-   yellow "4. 下载autocheck.sh脚本"
+   yellow "4. 下载检测脚本autocheck.sh"
    echo  "==============="
    yellow "5. 清理所有进程"
    echo  "==============="
