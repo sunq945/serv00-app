@@ -71,7 +71,7 @@ uninstall_vmess() {
     case "$choice" in
        [Yy])
           pgrep -f "vmess_config.json"| grep -v grep | awk '{print $2}' | xargs kill -9
-          rm -rf $WORKDIR
+          rm -rf $WORKDIR /usr/home/$USER/logs/checkvmess.log
            echo -e "${green} 卸载完成 ${re}"
           ;;
         [Nn]) exit 0 ;;
