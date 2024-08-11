@@ -31,7 +31,7 @@ printLog(){
 WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/xray"
 # running files
 run_vless() { 
-  if [ -f "./xray" ] && [ -f "./config.json" ]; then
+  if [ -f "./xray" ] && [ -f "./checkvmess.shconfig.json" ]; then
       nohup ./xray -c config.json >/dev/null 2>&1 &
   else
     msg="xray or config.json is not exist,skiping runing"
