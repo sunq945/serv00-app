@@ -22,6 +22,9 @@ try {
 
 const uuid = config.server.uuid.replace(/-/g, '');
 const port = config.server.port;
+const domain = config.server.host;
+const cfg_path="/IVApi/NL/7"
+const cfg_host="wwww.bing.com"
 
 console.log(yellow("读取到uuid:"+uuid))
 console.log(yellow("读取到port:"+port))
@@ -63,7 +66,7 @@ let config_data={
                 "security": "none",
                 "wsSettings": {
                   "acceptProxyProtocol": false,
-                  "path": "/IVApi/NL/7",
+                  "path": cfg_path,
                   "headers": {}
                 }
               },
@@ -104,4 +107,40 @@ fs.writeFile(file, content, function(err) {
 });
 
 
+let client_config={
+    "v": "2",
+    "ps": "serv00_xray",
+    "add": domain,
+    "port": port,
+    "id": uuid,
+    "aid": "0",
+    "scy": "none",
+    "net": "ws",
+    "type": "none",
+    "host": cfg_host,
+    "path": cfg_path,
+    "tls": "",
+    "sni": cfg_host,
+    "alpn": "",
+    "fp": ""
+  }
+  let jsonStr = JSON.stringify(client_config);
+  let base64Str = btoa(jsonStr);
+
+
+//指定创建目录及文件名称，__dirname为执行当前js文件的目录
+var client_info_file = path.join(__dirname, 'xray_link.txt'); 
+
+let link="vmess://"+base64Str;
+
+//写入文件
+fs.writeFile(client_info_file, link, function(err) {
+    if (err) {
+        return console.log(err);
+    }
+    console.log(green('生成vmess链接成功:') )
+    console.log(purple(link) )
+    console.log(green("上述信息已经保存到:"+__dirname+"/xray_link.txt") )   
+    process.env.CFG_FILE = file
+});
 
