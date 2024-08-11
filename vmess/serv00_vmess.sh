@@ -162,7 +162,7 @@ echo -e "${green} 已保存uuid和端口号到:$(pwd)/generator.json ${re}"
 }
 
 show_link(){
-  cat $WORKDIR/vemss_link.txt 
+  cat $WORKDIR/vmess_link.txt 
   echo -e "\n"
   echo -e "\n"
 }
