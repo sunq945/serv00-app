@@ -17,15 +17,15 @@ HOSTNAME=$(hostname)
 
 BASH_SOURCE="$0"
 appname="vmess"
-
-
+LOGS_DIR="/usr/home/$USER/logs"
+[ -d "$LOGS_DIR" ] || (mkdir -p "$LOGS_DIR" && chmod 777 "$LOGS_DIR")
 
 printLog(){
     local time=$(date "+%Y-%m-%d %H:%M:%S")
     local log_str="[${time}]:$1"    
     local FILE=$BASH_SOURCE
     local filename=$(basename $FILE .sh)
-    echo "$log_str" >> ~/$filename.log
+    echo "$log_str" >> $LOGS_DIR/$filename.log
 }
 
 WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/vmess"
