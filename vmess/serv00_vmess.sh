@@ -149,10 +149,11 @@ echo -e "${green} 已保存uuid和端口号到:$(pwd)/generator.json ${re}"
   if [ ! -f "./generator.js" ];then
     echo -e "${yellow}正在下载generator.js${re}"
     curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/generator.js -o generator.js 
+    echo -e "${green} 下载 generator.js 完毕${re}"
   fi;
 
   if [ -f "./generator.js" ];then
-      echo -e "${green} 下载 generator.js 成功${re}"
+      echo -e "${green} 即将生成配置信息${re}"
       node generator.js
   else
     echo -e "${red} 下载 generator.js  失败 ${re}"
