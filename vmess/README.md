@@ -4,21 +4,21 @@
 
 vps一键脚本
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/serv00_vmess.sh)
 ```
 * 第一种方式：下载到本地后再进行自动安装
   
 ```
-curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/serv00_vless.sh -o serv00_vless.sh && chmod +x serv00_vless.sh && ./serv00_vless.sh
+curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/serv00_vmess.sh -o serv00_vmess.sh && chmod +x serv00_vmess.sh && ./serv00_vmess.sh
 ```
 
 
 # 2：一键下载并执行检测app.js进程脚本
 * 可以添加到serv00的cron job上作为定时检查任务
 
-下载自动检测脚本（autocheck.sh）到本地并自动运行：
+下载自动检测脚本（checkvmess.s）到本地并自动运行：
 ```
-curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/autocheck.sh -o autocheck.sh && chmod +x autocheck.sh && ./autocheck.sh
+curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/checkvmess.sh -o checkvmess.sh && chmod +x checkvmess.sh && ./checkvmess.sh
 ```
 
 该脚本会在账号根目录下生成autocheck.log的日志文件，方便查看运行状态。
