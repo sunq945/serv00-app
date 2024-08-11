@@ -226,7 +226,7 @@ menu() {
 	      4) download_check_script ;;        
 	      5) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 3" ;;
+        *) red "无效的选项，请输入 0 到 5" ;;
     esac
 }
 menu
