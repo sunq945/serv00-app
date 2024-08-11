@@ -109,7 +109,7 @@ fs.writeFile(file, content, function(err) {
 
 let client_config={
     "v": "2",
-    "ps": "serv00_xray",
+    "ps": "serv00_vmess",
     "add": domain,
     "port": port,
     "id": uuid,
