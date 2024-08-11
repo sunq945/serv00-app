@@ -24,7 +24,7 @@ const uuid = config.server.uuid.replace(/-/g, '');
 const port = config.server.port;
 const domain = config.server.host;
 const cfg_path="/IVApi/NL/7"
-const cfg_host="wwww.bing.com"
+const cfg_host="www.bing.com"
 
 console.log(yellow("读取到uuid:"+uuid))
 console.log(yellow("读取到port:"+port))
