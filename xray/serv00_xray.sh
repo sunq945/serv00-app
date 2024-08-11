@@ -92,15 +92,7 @@ reading "\n清理所有进程将退出ssh连接，确定继续清理吗？【y/n
 download_xray_core() {
   local app_name="Xray-freebsd-64.zip"
   echo -e "${yellow} 下载xray-core( $app_name ): ${re}"
-
-  release_info=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest)
-  #download_url=$(echo "$release_info" | jq -r '.assets[] | select(.name | contains("Xray-freebsd-64.zip")) | .browser_download_url' |awk 'NR==1{print $1}')
-  download_url=$(echo "$release_info" | jq -r '.assets[] | select(.name == "Xray-freebsd-64.zip") | .browser_download_url')
-  echo -e "${yellow} $app_name 的下载链接:$download_url ${re}"
-
-  curl -L "$download_url" -o $app_name
-
-
+  curl -sL -o $app_name https://github.com/XTLS/Xray-core/releases/latest/download/Xray-freebsd-64.zip
   if [ -f "./$app_name" ];then
     echo -e "${green} 下载 $app_name 成功，正在解压...${re}"
     unzip -o $app_name | awk 'BEGIN {ORS=" "} {print "."}'  
