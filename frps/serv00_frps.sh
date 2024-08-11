@@ -168,7 +168,7 @@ menu() {
    clear
    #while true;do
    echo ""
-   purple "============ vless一键安装脚本 =======\n"
+   purple "============ frps 一键安装脚本 =======\n"
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/frps${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装frp"
