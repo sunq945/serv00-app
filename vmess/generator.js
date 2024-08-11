@@ -95,7 +95,7 @@ let config_data={
 var content = JSON.stringify(config_data); 
 
 //指定创建目录及文件名称，__dirname为执行当前js文件的目录
-var file = path.join(__dirname, 'config.json'); 
+var file = path.join(__dirname, 'vmess_config.json'); 
 
 //写入文件
 fs.writeFile(file, content, function(err) {
@@ -129,7 +129,7 @@ let client_config={
 
 
 //指定创建目录及文件名称，__dirname为执行当前js文件的目录
-var client_info_file = path.join(__dirname, 'xray_link.txt'); 
+var client_info_file = path.join(__dirname, 'vmess_link.txt'); 
 
 let link="vmess://"+base64Str;
 
@@ -140,7 +140,7 @@ fs.writeFile(client_info_file, link, function(err) {
     }
     console.log(green('生成vmess链接成功:') )
     console.log(purple(link) )
-    console.log(green("上述信息已经保存到:"+__dirname+"/xray_link.txt") )   
+    console.log(green("上述信息已经保存到:"+__dirname+"/vmess_link.txt") )   
     process.env.CFG_FILE = file
 });
 
