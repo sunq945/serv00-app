@@ -102,7 +102,7 @@ fs.writeFile(file, content, function(err) {
     if (err) {
         return console.log(err);
     }
-    console.log(green('文件创建成功，地址：' + file) )
+    console.log(green('文件创建成功，位置：' + file) )
     process.env.CFG_FILE = file
 });
 
