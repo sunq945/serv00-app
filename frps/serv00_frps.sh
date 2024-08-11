@@ -17,7 +17,7 @@ HOSTNAME=$(hostname)
 
 export MYDOMAIN=${USERNAME}.serv00.net
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/proxy" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/frps"
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/frps" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/frps"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 
