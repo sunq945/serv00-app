@@ -116,6 +116,21 @@ download_vless() {
  fi
 }
 
+download_check_script(){
+  local path=$(pwd)
+  cd /usr/home/$USER
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/autocheck.sh -o autocheck.sh && chmod +x autocheck.sh 
+  if [ -f "./autocheck.sh" ];then
+    echo -e "${green} 下载 autocheck.sh 成功， 文件位置： ${purple}"/usr/home/$USER/autocheck.sh" ${re}"
+    echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
+    /bin/sh /usr/home/$USER/autocheck.sh
+    ${re}"
+  else
+    echo -e "${red} 下载autocheck.sh失败,请重新下载 ${re}"
+  fi
+  cd $path
+} 
+
 # Generating Configuration Files
 generate_config() {
   cat > config.json << EOF
@@ -196,7 +211,9 @@ menu() {
    echo  "==============="
    green "3. 查看节点信息"
    echo  "==============="
-   yellow "4. 清理所有进程"
+   yellow "4. 下载autocheck.sh脚本"
+   echo  "==============="
+   yellow "5. 清理所有进程"
    echo  "==============="
    red "0. 退出脚本"
    echo "==========="
@@ -206,9 +223,11 @@ menu() {
         1) install_vless ;;
         2) uninstall_vless ;; 
         3) cat $WORKDIR/vless_link.txt ;; 
-	4) kill_all_tasks ;;
+	      4) download_check_script ;;        
+	      5) kill_all_tasks ;;
         0) exit 0 ;;
         *) red "无效的选项，请输入 0 到 3" ;;
     esac
 }
 menu
+
