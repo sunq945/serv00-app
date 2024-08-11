@@ -156,6 +156,11 @@ node generator.js
 
 }
 
+show_link(){
+  cat $WORKDIR/xray_link.txt 
+  echo -e "\n"
+  echo -e "\n"
+}
 # running files
 run_xray() { 
   if [ -f "./xray" ] && [ -f "./config.json" ]; then
@@ -194,7 +199,7 @@ menu() {
     case "${choice}" in
         1) install_xray ;;
         2) uninstall_xray ;; 
-        3) cat $WORKDIR/xray_link.txt ;; 
+        3) show_link ;; 
         4) download_check_script ;;
         5) kill_all_tasks ;;
         0) exit 0 ;;
