@@ -145,8 +145,19 @@ generate_config() {
 }
 EOF
 echo -e "${green} 已保存uuid和端口号到:$(pwd)/generator.json ${re}"
-node generator.js
 
+  if [ ! -f "./generator.js" ];then
+    echo -e "${yellow}正在下载generator.js${re}"
+    curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/generator.js -o generator.js 
+  fi;
+
+  if [ -f "./generator.js" ];then
+      echo -e "${green} 下载 generator.js 成功${re}"
+      node generator.js
+  else
+    echo -e "${red} 下载 generator.js  失败 ${re}"
+    exit 1
+  fi;     
 }
 
 show_link(){
