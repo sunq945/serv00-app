@@ -19,7 +19,7 @@ export MYDOMAIN=${USERNAME}.serv00.net
 
 
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/xray" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/vmess"
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/vmess" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/vmess"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 
