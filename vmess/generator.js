@@ -28,7 +28,7 @@ const cfg_host="www.bing.com"
 
 console.log(yellow("读取到uuid:"+uuid))
 console.log(yellow("读取到port:"+port))
-console.log(yellow("正在生成xray配置文件config.json"))
+console.log(yellow("正在生成vmess配置文件vmess_config.json"))
 
 let config_data={
     "log": {
