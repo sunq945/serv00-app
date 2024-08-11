@@ -70,7 +70,7 @@ uninstall_vmess() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
-          pgrep -f "vmess_config.json"| grep -v grep | awk '{print $2}' | xargs kill -9
+          pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9  
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvmess.log
            echo -e "${green} 卸载完成 ${re}"
           ;;
