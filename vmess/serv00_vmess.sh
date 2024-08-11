@@ -171,7 +171,7 @@ run_vmess() {
   sleep 2
   echo -e "${green} 正在启动vmess...${re}"
   if [ -f "./xray" ] && [ -f "./vmess_config.json" ]; then
-        pgrep -f "vmess_config.json" | grep -v grep | awk '{print $2}' | xargs kill -9               
+        pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9               
         nohup ./xray -c vmess_config.json >/dev/null 2>&1 &
         sleep 3
         pgrep -f "vmess_config.json"> /dev/null && green "vmess is running" || { red "vmess is not running, failed!" ;}
