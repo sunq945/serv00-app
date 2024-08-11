@@ -168,6 +168,15 @@ run_vmess() {
   fi
 }
 
+madify_port(){
+  local path=$(pwd)
+  cd $WORKDIR
+  read_vmess_port
+  rm -f generator.json
+  generate_config
+  run_vmess && sleep 3   
+}
+
 
 #主菜单
 menu() {
@@ -178,27 +187,30 @@ menu() {
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/vmess${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装vmess"
-   echo  "==============="
+   echo  "=============================="
    red "2. 卸载vmess"
-   echo  "==============="
+   echo  "=============================="
    green "3. 查看节点信息"
-   echo  "==============="
-   yellow "4. 下载检测脚本checkvmess.sh"
-   echo  "==============="
-   yellow "5. 清理所有进程"
-   echo  "==============="
+   echo  "=============================="
+   green "4. 下载检测脚本checkvmess.sh"
+   echo  "=============================="
+   yellow "5. 修改端口"  
+   echo  "=============================="
+   yellow "6. 清理所有进程"
+   echo  "=============================="
    red "0. 退出脚本"
-   echo "==========="
-   reading "请输入选择(0-5): " choice
+   echo  "=============================="
+   reading "请输入选择(0-6): " choice
    echo ""
     case "${choice}" in
         1) install_vmess ;;
         2) uninstall_vmess ;; 
         3) show_link ;; 
         4) download_check_script ;;
-        5) kill_all_tasks ;;
+        5) madify_port ;;
+        6) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 5" ;;
+        *) red "无效的选项，请输入 0 到 6" ;;
     esac
     #done;
 }
