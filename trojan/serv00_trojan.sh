@@ -57,7 +57,7 @@ reading "\n确定继续安装吗？【y/n】: " choice
   esac
 }
 
-uninstall_xray() {
+uninstall_trojan() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
@@ -234,8 +234,8 @@ menu() {
    reading "请输入选择(0-5): " choice
    echo ""
     case "${choice}" in
-        1) install_xray ;;
-        2) uninstall_xray ;; 
+        1) install_trojan ;;
+        2) uninstall_trojan;; 
         3) cat  $WORKDIR/trojan_link.txt ;; 
         4) download_check_script ;;
         5) kill_all_tasks ;;
