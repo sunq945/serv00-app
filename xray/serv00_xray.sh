@@ -97,6 +97,7 @@ download_xray_core() {
     echo -e "${green} 下载 $app_name 成功，正在解压...${re}"
     unzip -o $app_name | awk 'BEGIN {ORS=" "} {print "."}'  
     echo -e "${green} 解压完毕${re}"
+    chmod +x xray
     rm -rf $app_name
     echo -e "${yellow} $app_name 已删除.${re}"
   else
