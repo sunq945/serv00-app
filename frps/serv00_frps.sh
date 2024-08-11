@@ -130,7 +130,7 @@ download_check_script(){
   if [ -f "./checkfrps.sh" ];then
     echo -e "${green} 下载 checkfrps.sh 成功， 文件位置： ${purple}"$WORKDIR/checkfrps.sh" ${re}"
     echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    /bin/sh $WORKDIR/checkfrps.sh
+    ${green}/bin/sh $WORKDIR/checkfrps.sh
     ${re}"
   else
     echo -e "${red} 下载checkfrps.sh失败,请重新下载 ${re}"
