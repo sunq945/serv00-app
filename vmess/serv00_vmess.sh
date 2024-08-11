@@ -157,7 +157,7 @@ show_link(){
 # running files
 run_vmess() { 
   sleep 2
-  echo -e "${green} 正在启动vmess..." ${re}"
+  echo -e "${green} 正在启动vmess...${re}"
   if [ -f "./xray" ] && [ -f "./vmess_config.json" ]; then
         pgrep -f "vmess_config.json" | grep -v grep | awk '{print $2}' | xargs kill -9               
         nohup ./xray -c vmess_config.json >/dev/null 2>&1 &
