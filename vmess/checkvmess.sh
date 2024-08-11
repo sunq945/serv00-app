@@ -32,7 +32,7 @@ WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/vmess"
 # running files
 run_vless() { 
   if [ -f "./xray" ] && [ -f "./vmess_config.json" ]; then
-      nohup ./xray -c config.json >/dev/null 2>&1 &
+      nohup ./xray -c vmess_config.json >/dev/null 2>&1 &
   else
     msg="xray or config.json is not exist,skiping runing"
     purple "$msg"
