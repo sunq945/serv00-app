@@ -144,7 +144,7 @@ download_check_script(){
 generate_config() {
 # 创建配置文件
 echo "${red} 正在创建配置文件...${re}"
-cat <<EOF > config.json
+cat <<EOF > trojan_config.json
 {
     "log": {
         "loglevel": "warning"
@@ -187,26 +187,26 @@ cat <<EOF > config.json
 EOF
 echo -e "${green} 已保存配置文件到:$(pwd)/config.json ${re}"
 
-# 生成 Trojan 链接
+echo -e "${green} 生成 Trojan 链接:${re}"
 TROJAN_LINK="trojan://$PASSWORD@$SERVER_IP:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv000"
 cat > trojan_link.txt <<EOF
 $TROJAN_LINK
-
 EOF
+echo -e "${purple}$TROJAN_LINK${re}"
 }
 
 # running files
 run_trojan() {     
 
-  if [ -f "./xray" ] && [ -f "./config.json" ]; then
+  if [ -f "./xray" ] && [ -f "./trojan_config.json" ]; then
         ps aux | grep "xray" | grep -v grep | awk '{print $2}' | xargs kill -9        
         # 在 tmux 中运行 Xray
         echo -e "${green} 正在启动 Xray...${re}"
-        tmux new-session -d -s xray "./xray run -c config.json"
+        tmux new-session -d -s xray "./xray run -c trojan_config.json"
         sleep 3
-        #pgrep -f "xray" > /dev/null && green "xray is running" || { red "xray is not running, failed!" ;}
+        pgrep -f "trojan_config" > /dev/null && green "trojanis running" || { red "trojan is not running, failed!" ;}
   else
-        purple "xray or config.json is not exist,skiping runing"
+        purple "xray or trojan_config.json is not exist,skiping runing"
   fi
 }
 
@@ -216,16 +216,16 @@ menu() {
    clear
    #while true;do
    echo ""
-   purple "============ xray 一键安装脚本 =======\n"
+   purple "============ trojan 一键安装脚本 =======\n"
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/xray${re}\n"
    purple "转载请注明出处，请勿滥用\n"
-   green "1. 安装xray"
+   green "1. 安装trojan"
    echo  "==============="
    red "2. 卸载xray"
    echo  "==============="
    green "3. 查看节点信息"
    echo  "==============="
-   yellow "4. 下载检测脚本checkxray.sh"
+   yellow "4. 下载检测脚本checktrojan.sh"
    echo  "==============="
    yellow "5. 清理所有进程"
    echo  "==============="
