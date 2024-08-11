@@ -17,7 +17,7 @@ HOSTNAME=$(hostname)
 
 export MYDOMAIN=${USERNAME}.serv00.net
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="domains/${USERNAME}.ct8.pl/proxy" || WORKDIR="domains/$MYDOMAIN/frps"
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/proxy" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/frps"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 
@@ -123,6 +123,22 @@ download_frps() {
  fi
 }
 
+download_check_script(){
+  local path=$(pwd)
+  cd $WORKDIR
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/frps/checkfrps.sh -o checkfrps.sh && chmod +x checkfrps.sh 
+  if [ -f "./checkfrps.sh" ];then
+    echo -e "${green} 下载 checkfrps.sh 成功， 文件位置： ${purple}"$WORKDIR/checkfrps.sh" ${re}"
+    echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
+    /bin/sh $WORKDIR/checkfrps.sh
+    ${re}"
+  else
+    echo -e "${red} 下载checkfrps.sh失败,请重新下载 ${re}"
+  fi
+  cd $path
+} 
+
+
 # Generating Configuration Files
 generate_config() {
   echo -e "${yellow} 正在生成配置文件${re}"
@@ -153,7 +169,7 @@ menu() {
    #while true;do
    echo ""
    purple "============ vless一键安装脚本 =======\n"
-   echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/vless${re}\n"
+   echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/frps${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装frp"
    echo  "==============="
@@ -161,7 +177,9 @@ menu() {
    echo  "==============="
    green "3. 查看配置文件"
    echo  "==============="
-   yellow "4. 清理所有进程"
+   yellow "4. 下载检测脚本checkfrps.sh"
+   echo  "==============="
+   yellow "5. 清理所有进程"
    echo  "==============="
    red "0. 退出脚本"
    echo "==========="
@@ -171,9 +189,10 @@ menu() {
         1) install_frps ;;
         2) uninstall_frps ;; 
         3) cat $WORKDIR/frps.toml ;; 
-        4) kill_all_tasks ;;
+        4) download_check_script ;;
+        5) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 4" ;;
+        *) red "无效的选项，请输入 0 到 5" ;;
     esac
     #done;
 }
