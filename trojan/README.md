@@ -18,7 +18,7 @@ curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/trojan/ser
 
 下载自动检测脚本（checktrojan.sh）到本地并自动运行：
 ```
-curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/checktrojan.sh -o checktrojan.sh && chmod +x checktrojan.sh && ./checktrojan.sh
+curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/trojan/checktrojan.sh -o checktrojan.sh && chmod +x checktrojan.sh && ./checktrojan.sh
 ```
 
 该脚本会生成 /home/账号/logs/checktrojan.log 的日志文件，方便查看运行状态。
