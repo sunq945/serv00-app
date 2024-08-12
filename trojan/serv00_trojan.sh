@@ -105,8 +105,8 @@ generate_infos(){
   local email="user$(openssl rand -hex 4)@example.com"
   
   #去掉字符串中的‘/’
-  export PASSWORD=$(echo ${pws//\//})
-  export EMAIL=$(echo ${email//\//})
+  export PASSWORD=$(echo ${$pws//\//})
+  export EMAIL=$(echo ${$email//\//})
 
   # 随机选择 alpn 值
   export ALPN_VALUES=("http/1.1" "h2" "h3")
@@ -221,7 +221,7 @@ madify_port(){
   read_trojan_port
   rm -f trojan_config.json
   generate_config
-  run_vmess && sleep 3   
+  run_trojan && sleep 3   
 }
 
 
