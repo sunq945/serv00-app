@@ -115,7 +115,7 @@ download_check_script(){
   if [ -f "./checkvless.sh" ];then
     echo -e "${green} 下载 checkvless.sh 成功， 文件位置： ${purple}"$WORKDIR/checkvless.sh" ${re}"
     echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    /bin/sh $WORKDIR/checkvless.sh
+    ${green}/bin/sh $WORKDIR/checkvless.sh
     ${re}"
   else
     echo -e "${red} 下载checkvless.sh失败,请重新下载 ${re}"
