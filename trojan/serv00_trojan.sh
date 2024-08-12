@@ -61,8 +61,9 @@ uninstall_trojan() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
-          ps aux | grep -f "tmux: server" | grep -v grep | awk '{print $2}' | xargs kill -9
-          rm -rf $WORKDIR
+          pgrep -f "trojan_config.json" | grep -v grep | xargs kill -9   
+          rm -rf $WORKDIR /usr/home/$USER/logs/checktrojan.log
+
            echo -e "${green} 卸载完成 ${re}"
           ;;
         [Nn]) exit 0 ;;
