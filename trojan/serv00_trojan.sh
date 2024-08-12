@@ -193,7 +193,7 @@ EOF
 echo -e "${green} 已保存配置文件到:$(pwd)/trojan_config.json ${re}"
 
 echo -e "${green} 生成 Trojan 链接:${re}"
-TROJAN_LINK="trojan://$PASSWORD@$MYDOMAIN:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv000_trojan"
+TROJAN_LINK="trojan://$PASSWORD@$MYDOMAIN:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv00_trojan"
 cat > trojan_link.txt <<EOF
 $TROJAN_LINK
 EOF
