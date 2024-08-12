@@ -16,12 +16,12 @@ curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/serv
 # 2：一键下载并执行检测app.js进程脚本
 * 可以添加到serv00的cron job上作为定时检查任务
 
-下载自动检测脚本（checkvmess.s）到本地并自动运行：
+下载自动检测脚本（checkvmess.sh）到本地并自动运行：
 ```
 curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/checkvmess.sh -o checkvmess.sh && chmod +x checkvmess.sh && ./checkvmess.sh
 ```
 
-该脚本会在账号根目录下生成autocheck.log的日志文件，方便查看运行状态。
+该脚本会生成 /home/账号/logs/checkvmess.log 的日志文件，方便查看运行状态。
 
 # 免责声明
 * 本程序仅供学习了解, 非盈利目的，请于下载后 24 小时内删除, 不得用作任何商业用途, 文字、数据及图片均有所属版权, 如转载须注明来源。
