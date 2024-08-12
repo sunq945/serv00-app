@@ -15,11 +15,6 @@ reading() { read -p "$(red "$1")" "$2"; }
 USERNAME=$(whoami)
 HOSTNAME=$(hostname)
 
-
-
-export NEZHA_SERVER=${NEZHA_SERVER:-''} 
-export NEZHA_PORT=${NEZHA_PORT:-'5555'}     
-export NEZHA_KEY=${NEZHA_KEY:-''} 
 export MYDOMAIN=${USERNAME}.serv00.net
 
 CFG_ENCRYPTION="none" 
@@ -81,7 +76,7 @@ uninstall_vless() {
     case "$choice" in
        [Yy])
           ps aux | grep app.js | grep -v grep | awk '{print $2}' | xargs kill -9
-          rm -rf $WORKDIR
+          rm -rf $WORKDIR /usr/home/$USER/logs/checkvless.log
           ;;
         [Nn]) exit 0 ;;
     	*) red "无效的选择，请输入y或n" && menu ;;
@@ -115,14 +110,14 @@ download_vless() {
 download_check_script(){
   local path=$(pwd)
   cd $WORKDIR
-  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/checkvless.sh -o autocheck.sh && chmod +x autocheck.sh 
-  if [ -f "./autocheck.sh" ];then
-    echo -e "${green} 下载 autocheck.sh 成功， 文件位置： ${purple}"$WORKDIR/autocheck.sh" ${re}"
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/checkvless.sh -o checkvless.sh && chmod +x checkvless.sh
+  if [ -f "./checkvless.sh" ];then
+    echo -e "${green} 下载 checkvless.sh 成功， 文件位置： ${purple}"$WORKDIR/checkvless.sh" ${re}"
     echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    /bin/sh $WORKDIR/autocheck.sh
+    /bin/sh $WORKDIR/checkvless.sh
     ${re}"
   else
-    echo -e "${red} 下载autocheck.sh失败,请重新下载 ${re}"
+    echo -e "${red} 下载checkvless.sh失败,请重新下载 ${re}"
   fi
   cd $path
 } 
@@ -154,10 +149,10 @@ EOF
 run_vless() { 
     sleep 3
   if [ -f "./vless/app.js" ]; then
-        ps aux | grep "vless/app.js" | grep -v grep | awk '{print $2}' | xargs kill -9        
+        pgrep -f "vless/app.js" | grep -v grep | xargs kill -9       
         nohup node ./vless/app.js  >/dev/null 2>&1 &
         sleep 3
-        pgrep -f "app.js" > /dev/null && green "vless is running" || { red "vless is not running, failed!" ;}
+        pgrep -f "vless/app.js" > /dev/null && green "vless is running" || { red "vless is not running, failed!" ;}
   else
         purple "vless/app.js is not exist,skiping runing"
   fi
@@ -200,6 +195,7 @@ madify_port(){
   read_vless_port
   rm -f vless_config.json
   generate_config
+  get_links
   run_vmess && sleep 3   
 }
 
