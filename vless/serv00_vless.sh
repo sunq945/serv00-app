@@ -196,7 +196,7 @@ madify_port(){
   rm -f vless_config.json
   generate_config
   get_links
-  run_vmess && sleep 3   
+  run_vless && sleep 3   
 }
 
 #主菜单
