@@ -16,25 +16,25 @@ HOSTNAME=$(hostname)
 
 
 BASH_SOURCE="$0"
-appname="xray"
-
-
+appname="trojan"
+LOGS_DIR="/usr/home/$USER/logs"
+[ -d "$LOGS_DIR" ] || (mkdir -p "$LOGS_DIR" && chmod 755 "$LOGS_DIR")
 
 printLog(){
     local time=$(date "+%Y-%m-%d %H:%M:%S")
     local log_str="[${time}]:$1"    
     local FILE=$BASH_SOURCE
     local filename=$(basename $FILE .sh)
-    echo "$log_str" >> ~/$filename.log
+    echo "$log_str" >> $LOGS_DIR/$filename.log
 }
 
-WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/xray"
+WORKDIR="/usr/home/$USER/domains/${USERNAME}.serv00.net/trojan"
 # running files
 run_vless() { 
-  if [ -f "./xray" ] && [ -f "./config.json" ]; then
-      nohup ./xray -c config.json >/dev/null 2>&1 &
+  if [ -f "./xray" ] && [ -f "./trojan_config.json" ]; then
+      nohup ./xray -c trojan_config.json >/dev/null 2>&1 &
   else
-    msg="xray or config.json is not exist,skiping runing"
+    msg="xray or trojan_config.json is not exist,skiping runing"
     purple "$msg"
     printStatus "$msg"
   fi
@@ -46,16 +46,16 @@ printStatus(){
 
 main(){
     cd $WORKDIR
-    result=$(pgrep -f "xray" 2> /dev/null)
+    result=$(pgrep -f "trojan_config.json" 2> /dev/null)
     if [ -z ${result} ]; then
-      red "xray is not running, restarting..."
-      pkill -f "xray" 
+      red "trojan is not running, restarting..."
+      pkill -f "trojan_config.json" 
       run_vless 
       sleep 2
-      pgrep -f "xray" >/dev/null && { green "xray restart ok"; printStatus "restart ok" ;} || { purple "xray restart failed";  printStatus "restart failed"; }
+      pgrep -f "trojan_config.json" >/dev/null && { green "trojan restart ok"; printStatus "restart ok" ;} || { purple "trojan restart failed";  printStatus "restart failed"; }
   
     else
-      green "xray is running"
+      green "trojan is running"
       printStatus "running" 
     fi;    
     
