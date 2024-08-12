@@ -61,7 +61,7 @@ uninstall_trojan() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
-          ps aux | grep -f "trojan_config" | grep -v grep | awk '{print $2}' | xargs kill -9
+          ps aux | grep -f "tmux: server" | grep -v grep | awk '{print $2}' | xargs kill -9
           rm -rf $WORKDIR
            echo -e "${green} 卸载完成 ${re}"
           ;;
@@ -126,14 +126,14 @@ generate_crypito_info(){
 download_check_script(){
   local path=$(pwd)
   cd $WORKDIR
-  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/xray/checkxray.sh -o checkxray.sh && chmod +x checkxray.sh 
-  if [ -f "./checkxray.sh" ];then
-    echo -e "${green} 下载 checkxray.sh 成功， 文件位置： ${purple}"$WORKDIR/checkxray.sh" ${re}"
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/trojan/checktrojan.sh -o checktrojan.sh && chmod +x checktrojan.sh
+  if [ -f "./checktrojan.sh" ];then
+    echo -e "${green} 下载 checktrojan.sh 成功， 文件位置： ${purple}"$WORKDIR/checktrojan.sh" ${re}"
     echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    ${green}/bin/sh $WORKDIR/checkxray.sh
+    ${green}/bin/sh $WORKDIR/checktrojan.sh
     ${re}"
   else
-    echo -e "${red} 下载checkxray.sh失败,请重新下载 ${re}"
+    echo -e "${red} 下载checktrojan.sh失败,请重新下载 ${re}"
     exit 1
   fi
   cd $path
@@ -143,7 +143,7 @@ download_check_script(){
 # Generating Configuration Files
 generate_config() {
 # 创建配置文件
-echo "${red} 正在创建配置文件...${re}"
+echo -e "${yellow} 正在创建配置文件...${re}"
 cat <<EOF > trojan_config.json
 {
     "log": {
@@ -185,10 +185,10 @@ cat <<EOF > trojan_config.json
     ]
 }
 EOF
-echo -e "${green} 已保存配置文件到:$(pwd)/config.json ${re}"
+echo -e "${green} 已保存配置文件到:$(pwd)/trojan_config.json ${re}"
 
 echo -e "${green} 生成 Trojan 链接:${re}"
-TROJAN_LINK="trojan://$PASSWORD@$SERVER_IP:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv000"
+TROJAN_LINK="trojan://$PASSWORD@$MYDOMAIN:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv000"
 cat > trojan_link.txt <<EOF
 $TROJAN_LINK
 EOF
@@ -199,15 +199,24 @@ echo -e "${purple}$TROJAN_LINK${re}"
 run_trojan() {     
 
   if [ -f "./xray" ] && [ -f "./trojan_config.json" ]; then
-        ps aux | grep "xray" | grep -v grep | awk '{print $2}' | xargs kill -9        
+        pgrep -f "trojan_config.json" | grep -v grep | xargs kill -9         
         # 在 tmux 中运行 Xray
         echo -e "${green} 正在启动 Xray...${re}"
-        tmux new-session -d -s xray "./xray run -c trojan_config.json"
+        nohup ./xray -c trojan_config.json >/dev/null 2>&1 &
         sleep 3
-        pgrep -f "trojan_config" > /dev/null && green "trojanis running" || { red "trojan is not running, failed!" ;}
+        pgrep -f "trojan_config.json" > /dev/null && green "trojanis running" || { red "trojan is not running, failed!" ;}
   else
         purple "xray or trojan_config.json is not exist,skiping runing"
   fi
+}
+
+madify_port(){
+  local path=$(pwd)
+  cd $WORKDIR
+  read_trojan_port
+  rm -f trojan_config.json
+  generate_config
+  run_vmess && sleep 3   
 }
 
 
@@ -217,30 +226,33 @@ menu() {
    #while true;do
    echo ""
    purple "============ trojan 一键安装脚本 =======\n"
-   echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/xray${re}\n"
+   echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/trojan${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装trojan"
-   echo  "==============="
-   red "2. 卸载xray"
-   echo  "==============="
+   echo  "=============================="
+   red "2. 卸载trojan"
+   echo  "=============================="
    green "3. 查看节点信息"
-   echo  "==============="
-   yellow "4. 下载检测脚本checktrojan.sh"
-   echo  "==============="
-   yellow "5. 清理所有进程"
-   echo  "==============="
+   echo  "=============================="
+   green "4. 下载检测脚本checktrojan.sh"
+   echo  "=============================="
+   yellow "5. 修改端口"
+   echo  "=============================="   
+   yellow "6. 清理所有进程"
+   echo  "=============================="
    red "0. 退出脚本"
-   echo "==========="
-   reading "请输入选择(0-5): " choice
+   echo  "=============================="
+   reading "请输入选择(0-6): " choice
    echo ""
     case "${choice}" in
         1) install_trojan ;;
         2) uninstall_trojan;; 
         3) cat  $WORKDIR/trojan_link.txt ;; 
         4) download_check_script ;;
-        5) kill_all_tasks ;;
+        5) madify_port ;;
+        6) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 5" ;;
+        *) red "无效的选项，请输入 0 到 6" ;;
     esac
     #done;
 }
