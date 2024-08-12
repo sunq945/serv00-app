@@ -30,7 +30,7 @@ CFG_PATH="/?proxyip=proxyip.oracle.fxxk.dedyn.io"
 CFG_REMARKS="serv00_vless"
 
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="domains/${USERNAME}.ct8.pl/proxy" || WORKDIR="domains/$MYDOMAIN/proxy"
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/vless" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/vless"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 UUID_FILE="$WORKDIR/.vless_uuid"  # Define a location to store the UUID
@@ -101,13 +101,9 @@ reading "\n清理所有进程将退出ssh连接，确定继续清理吗？【y/n
 download_vless() {
   echo -e "${yellow} 下载vless.zip: ${re}"
   $(wget https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/vless.zip -O vless.zip)
-  if [ -f ./vless.zip ];then
-    echo -e "${green} 下载vless.zip成功，正在解压...${re}"
-    #n_files=$(zipinfo vless.zip |grep ^-|wc -l|sed 's/ //g')
-    #echo -e "${yellow}vless.zip共有文件$n_files 个 ${re}"
-    #unzip -o vless.zip | tqdm --desc extracted --unit "files" --unit_scale --total $n_files > /dev/null
-    unzip -o vless.zip | awk 'BEGIN {ORS=" "} {print "."}'    
-    #unzip -q vless.zip
+  if [ -f "./vless.zip" ];then
+    echo -e "${green} 下载vless.zip成功，正在解压...${re}"  
+    unzip -q vless.zip
     echo -e "${green} 解压完毕${re}"
     rm -rf vless.zip
     echo -e "${yellow} vless.zip is removed.${re}"
@@ -118,12 +114,12 @@ download_vless() {
 
 download_check_script(){
   local path=$(pwd)
-  cd /usr/home/$USER
-  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/autocheck.sh -o autocheck.sh && chmod +x autocheck.sh 
+  cd $WORKDIR
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/checkvless.sh -o autocheck.sh && chmod +x autocheck.sh 
   if [ -f "./autocheck.sh" ];then
-    echo -e "${green} 下载 autocheck.sh 成功， 文件位置： ${purple}"/usr/home/$USER/autocheck.sh" ${re}"
+    echo -e "${green} 下载 autocheck.sh 成功， 文件位置： ${purple}"$WORKDIR/autocheck.sh" ${re}"
     echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    /bin/sh /usr/home/$USER/autocheck.sh
+    /bin/sh $WORKDIR/autocheck.sh
     ${re}"
   else
     echo -e "${red} 下载autocheck.sh失败,请重新下载 ${re}"
@@ -133,16 +129,16 @@ download_check_script(){
 
 # Generating Configuration Files
 generate_config() {
-  cat > config.json << EOF
+  cat > vless_config.json << EOF
 {
     "server":{
-        "listen_port": $vless_port,
+        "listen_port": $PORT,
         "uuid": "$UUID"
     },
     "client":{        
         "uuid": "$UUID",
         "addr":"$MYDOMAIN",
-        "port":$vless_port,     
+        "port":$PORT,     
         "encryption":"$CFG_ENCRYPTION",
         "security":"$CFG_SECURITY",
         "type":"$CFG_TYPE",
@@ -198,6 +194,15 @@ purple "节点信息已经保存到 $WORKDIR/vless_link.txt"
 
 }
 
+madify_port(){
+  local path=$(pwd)
+  cd $WORKDIR
+  read_vless_port
+  rm -f vless_config.json
+  generate_config
+  run_vmess && sleep 3   
+}
+
 #主菜单
 menu() {
    clear
@@ -206,28 +211,30 @@ menu() {
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/vless${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装vless"
-   echo  "==============="
+   echo  "================================="
    red "2. 卸载vless"
-   echo  "==============="
+   echo  "================================="
    green "3. 查看节点信息"
-   echo  "==============="
+   echo  "================================="
    yellow "4. 下载检测脚本autocheck.sh"
-   echo  "==============="
-   yellow "5. 清理所有进程"
-   echo  "==============="
+   echo  "================================="
+   yellow "5. 修改端口"
+   echo  "=================================" 
+   yellow "6. 清理所有进程"
+   echo  "================================="
    red "0. 退出脚本"
-   echo "==========="
+   echo  "================================="
    reading "请输入选择(0-3): " choice
    echo ""
     case "${choice}" in
         1) install_vless ;;
         2) uninstall_vless ;; 
         3) cat $WORKDIR/vless_link.txt ;; 
-	      4) download_check_script ;;        
+	      4) download_check_script ;;  
+        5) madify_port ;;      
 	      5) kill_all_tasks ;;
         0) exit 0 ;;
         *) red "无效的选项，请输入 0 到 5" ;;
     esac
 }
 menu
-
