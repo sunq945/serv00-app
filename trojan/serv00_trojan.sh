@@ -103,7 +103,8 @@ generate_infos(){
   # 生成随机密码和电子邮件
   local pws=$(openssl rand -base64 12)
   local email="user$(openssl rand -hex 4)@example.com"
-
+  
+  #去掉字符串中的‘/’
   export PASSWORD=$(echo ${pws//\//})
   export EMAIL=$(echo ${email//\//})
 
