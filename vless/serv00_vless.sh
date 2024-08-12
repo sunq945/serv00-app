@@ -77,6 +77,7 @@ uninstall_vless() {
        [Yy])
           ps aux | grep app.js | grep -v grep | awk '{print $2}' | xargs kill -9
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvless.log
+          echo -e "${green} 卸载成功${re}"
           ;;
         [Nn]) exit 0 ;;
     	*) red "无效的选择，请输入y或n" && menu ;;
