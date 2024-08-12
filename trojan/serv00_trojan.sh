@@ -101,8 +101,11 @@ download_xray_core() {
 
 generate_infos(){
   # 生成随机密码和电子邮件
-  export PASSWORD=$(openssl rand -base64 12)
-  export EMAIL="user$(openssl rand -hex 4)@example.com"
+  local pws=$(openssl rand -base64 12)
+  local email="user$(openssl rand -hex 4)@example.com"
+
+  export PASSWORD=$(echo ${pws//\//})
+  export EMAIL=$(echo ${email//\//})
 
   # 随机选择 alpn 值
   export ALPN_VALUES=("http/1.1" "h2" "h3")
