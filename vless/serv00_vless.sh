@@ -304,9 +304,9 @@ menu() {
         1) install_vless ;;
         2) uninstall_vless ;; 
         3) cat $WORKDIR/vless_link.txt ;; 
-	      4) create_cron ;;  
+	4) create_cron ;;  
         5) madify_port ;;      
-	      5) kill_all_tasks ;;
+	6) kill_all_tasks ;;
         0) exit 0 ;;
         *) red "无效的选项，请输入 0 到 6" ;;
     esac
