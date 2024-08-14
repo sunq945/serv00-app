@@ -15,11 +15,17 @@ reading() { read -p "$(red "$1")" "$2"; }
 USERNAME=$(whoami)
 HOSTNAME=$(hostname)
 
-export MYDOMAIN=${USERNAME}.serv00.net
+SERVER_TYPE=$(echo $HOSTNAME | awk -F'.' '{print $2}')
 
+if [ $SERVER_TYPE == "ct8" ];then
+    DOMAIN=$USER.ct8.pl
+elif [ $SERVER_TYPE == "serv00" ];then
+    DOMAIN=$USER.serv00.net
+else
+    DOMAIN="unknown-domain"
+fi
 
-
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/trojan" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/trojan"
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/$DOMAIN/trojan" || WORKDIR="/usr/home/$USER/domains/$DOMAIN/trojan"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 
@@ -63,8 +69,9 @@ uninstall_trojan() {
        [Yy])
           pgrep -f "trojan_config.json" | grep -v grep | xargs kill -9   
           rm -rf $WORKDIR /usr/home/$USER/logs/checktrojan.log
-
-           echo -e "${green} 卸载完成 ${re}"
+          echo -e "${green} 卸载完成 ${re}"
+          del_cron
+          green "已取消定时检测运行状态"
           ;;
         [Nn]) exit 0 ;;
     	*) red "无效的选择，请输入y或n" && menu ;;
@@ -128,25 +135,82 @@ generate_crypito_info(){
   fi 
 }
 
-download_check_script(){
-  local path=$(pwd)
+get_ip() {
+ip=$(curl -s --max-time 2 ipv4.ip.sb)
+if [ -z "$ip" ]; then
+    if [[ "$HOSTNAME" =~ s[0-9]\.serv00\.com ]]; then
+        ip=${HOSTNAME/s/web}
+    else
+        ip="$HOSTNAME"
+    fi
+fi
+echo $ip
+}
+
+CRON_CMD="/bin/sh $WORKDIR/checktrojan.sh" 
+
+get_timer() {
+    while true; do
+        reading "请输入定时分钟数(0~59,${yellow}注意：输入0则取消定时${re}${red}): " time_out
+        if [[ "$time_out" =~ ^[0-9]+$ ]] && [ "$time_out" -ge -1 ] && [ "$time_out" -le 60 ]; then
+            green "你的定时分钟数为: $time_out"
+            if [ $time_out == "0" ];then
+              yellow "如果您已经设置过定时，以下即将为您取消定时检测运行状态"
+            fi
+            break
+        else
+            yellow "输入错误，请重新输入分钟数(0~59)"
+        fi
+    done
+}
+
+
+del_cron(){
+  (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+}
+
+add_cron(){
+  (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+}
+
+create_cron(){
+  local path=$(pwd)  
   cd $WORKDIR
+  get_timer  
+  if [ ! -f ./checktrojan.sh ];then  
+  echo -e "${green} 正在下载 checktrojan.sh  ${re}"
   curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/trojan/checktrojan.sh -o checktrojan.sh && chmod +x checktrojan.sh
-  if [ -f "./checktrojan.sh" ];then
-    echo -e "${green} 下载 checktrojan.sh 成功， 文件位置： ${purple}"$WORKDIR/checktrojan.sh" ${re}"
-    echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    ${green}/bin/sh $WORKDIR/checktrojan.sh
-    ${re}"
+  fi
+
+  cron_record=$(crontab -l | grep -F "* * $CRON_CMD")
+  if [ -z "$cron_record" ];then
+    if [ $time_out != "0" ];then
+      add_cron
+      green "设置定时检测运行状态成功"
+    fi
   else
-    echo -e "${red} 下载checktrojan.sh失败,请重新下载 ${re}"
-    exit 1
+    #echo $cron_record
+    if [  $time_out != "0" ];then
+      r_time=$(echo ${cron_record:2}| awk -F' ' '{print $1}')
+      if [ $r_time != $time_out ] ;then        
+        del_cron
+        add_cron
+        green "修改定时检测运行状态成功"
+      fi
+    else
+      del_cron
+      green "取消定时检测运行状态成功"
+    fi
+
   fi
   cd $path
 } 
 
-
 # Generating Configuration Files
 generate_config() {
+
+IP=$(get_ip)
+
 # 创建配置文件
 echo -e "${yellow} 正在创建配置文件...${re}"
 cat <<EOF > trojan_config.json
@@ -193,7 +257,7 @@ EOF
 echo -e "${green} 已保存配置文件到:$(pwd)/trojan_config.json ${re}"
 
 echo -e "${green} 生成 Trojan 链接:${re}"
-TROJAN_LINK="trojan://$PASSWORD@$MYDOMAIN:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv00_trojan"
+TROJAN_LINK="trojan://$PASSWORD@$IP:$PORT?security=tls&alpn=$ALPN&allowInsecure=1&type=tcp#serv00_trojan"
 cat > trojan_link.txt <<EOF
 $TROJAN_LINK
 EOF
@@ -239,7 +303,7 @@ menu() {
    echo  "=============================="
    green "3. 查看节点信息"
    echo  "=============================="
-   green "4. 下载检测脚本checktrojan.sh"
+   green "4. 设置定时检测运行状态？"
    echo  "=============================="
    yellow "5. 修改端口"
    echo  "=============================="   
@@ -253,7 +317,7 @@ menu() {
         1) install_trojan ;;
         2) uninstall_trojan;; 
         3) cat  $WORKDIR/trojan_link.txt ;; 
-        4) download_check_script ;;
+        4) create_cron ;;
         5) madify_port ;;
         6) kill_all_tasks ;;
         0) exit 0 ;;
