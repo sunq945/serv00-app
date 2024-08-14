@@ -187,6 +187,9 @@ create_cron(){
 
 # Generating Configuration Files
 generate_config() {
+
+IP=$(get_ip)
+
   cat > vless_config.json << EOF
 {
     "server":{
@@ -195,7 +198,7 @@ generate_config() {
     },
     "client":{        
         "uuid": "$UUID",
-        "addr":"$MYDOMAIN",
+        "addr":"$IP",
         "port":$PORT,     
         "encryption":"$CFG_ENCRYPTION",
         "security":"$CFG_SECURITY",
@@ -243,7 +246,7 @@ urlencode() {
 
 get_links(){
 cat > vless_link.txt <<EOF
-vless://$(echo "$UUID@$MYDOMAIN:$PORT?encryption=$CFG_ENCRYPTION&security=$CFG_SECURITY&type=$CFG_TYPE&host=$CFG_HOST&path=$(urlencode $CFG_PATH)#$CFG_REMARKS")
+vless://$(echo "$UUID@$IP:$PORT?encryption=$CFG_ENCRYPTION&security=$CFG_SECURITY&type=$CFG_TYPE&host=$CFG_HOST&path=$(urlencode $CFG_PATH)#$CFG_REMARKS")
 EOF
 echo -e "${green} 已生成vless节点，链接如下： ${re}"
 cat vless_link.txt
