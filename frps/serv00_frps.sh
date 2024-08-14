@@ -15,11 +15,18 @@ reading() { read -p "$(red "$1")" "$2"; }
 USERNAME=$(whoami)
 HOSTNAME=$(hostname)
 
-export MYDOMAIN=${USERNAME}.serv00.net
+SERVER_TYPE=$(echo $HOSTNAME | awk -F'.' '{print $2}')
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/frps" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/frps"
+if [ $SERVER_TYPE == "ct8" ];then
+    DOMAIN=$USER.ct8.pl
+elif [ $SERVER_TYPE == "serv00" ];then
+    DOMAIN=$USER.serv00.net
+else
+    DOMAIN="unknown-domain"
+fi
+
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/$DOMAIN/frps" || WORKDIR="/usr/home/$USER/domains/$DOMAIN/frps"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
-
 
 read_host_port() {
     while true; do
@@ -87,7 +94,9 @@ uninstall_frps() {
        [Yy])
           ps aux | grep "frps" | grep -v grep | awk '{print $2}' | xargs kill -9
           rm -rf $WORKDIR
-           echo -e "${green} 卸载完成 ${re}"
+          echo -e "${green} 卸载完成 ${re}"
+          del_cron
+          green "已取消定时检测运行状态"
           ;;
         [Nn]) exit 0 ;;
     	*) red "无效的选择，请输入y或n" && menu ;;
@@ -123,21 +132,76 @@ download_frps() {
  fi
 }
 
-download_check_script(){
-  local path=$(pwd)
+CRON_CMD="/bin/sh $WORKDIR/checkfrps.sh" 
+
+get_timer() {
+    while true; do
+        reading "请输入定时分钟数(0~59,${yellow}注意：输入0则取消定时${re}${red}): " time_out
+        if [[ "$time_out" =~ ^[0-9]+$ ]] && [ "$time_out" -ge -1 ] && [ "$time_out" -le 60 ]; then
+            green "你的定时分钟数为: $time_out"
+            if [ $time_out == "0" ];then
+              yellow "如果您已经设置过定时，以下即将为您取消定时检测运行状态"
+            fi
+            break
+        else
+            yellow "输入错误，请重新输入分钟数(0~59)"
+        fi
+    done
+}
+
+
+del_cron(){
+  (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+}
+
+add_cron(){
+  (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+}
+
+create_cron(){
+  local path=$(pwd)  
   cd $WORKDIR
+  get_timer  
+  if [ ! -f ./checkfrps.sh ];then  
+  echo -e "${green} 正在下载 checkfrps.sh  ${re}"
   curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/frps/checkfrps.sh -o checkfrps.sh && chmod +x checkfrps.sh 
-  if [ -f "./checkfrps.sh" ];then
-    echo -e "${green} 下载 checkfrps.sh 成功， 文件位置： ${purple}"$WORKDIR/checkfrps.sh" ${re}"
-    echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    ${green}/bin/sh $WORKDIR/checkfrps.sh
-    ${re}"
+  fi
+
+  cron_record=$(crontab -l | grep -F "* * $CRON_CMD")
+  if [ -z "$cron_record" ];then
+    if [ $time_out != "0" ];then
+      add_cron
+      green "设置定时检测运行状态成功"
+    fi
   else
-    echo -e "${red} 下载checkfrps.sh失败,请重新下载 ${re}"
+    #echo $cron_record
+    if [  $time_out != "0" ];then
+      r_time=$(echo ${cron_record:2}| awk -F' ' '{print $1}')
+      if [ $r_time != $time_out ] ;then        
+        del_cron
+        add_cron
+        green "修改定时检测运行状态成功"
+      fi
+    else
+      del_cron
+      green "取消定时检测运行状态成功"
+    fi
+
   fi
   cd $path
 } 
 
+get_ip() {
+ip=$(curl -s --max-time 2 ipv4.ip.sb)
+if [ -z "$ip" ]; then
+    if [[ "$HOSTNAME" =~ s[0-9]\.serv00\.com ]]; then
+        ip=${HOSTNAME/s/web}
+    else
+        ip="$HOSTNAME"
+    fi
+fi
+echo $ip
+}
 
 # Generating Configuration Files
 generate_config() {
@@ -172,24 +236,24 @@ menu() {
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/frps${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装frp"
-   echo  "==============="
+   echo  "================================="
    red "2. 卸载frp"
-   echo  "==============="
+   echo  "================================="
    green "3. 查看配置文件"
-   echo  "==============="
-   yellow "4. 下载检测脚本checkfrps.sh"
-   echo  "==============="
+   echo  "================================="
+   green "4. 设置定时检测运行状态？"
+   echo  "================================="
    yellow "5. 清理所有进程"
-   echo  "==============="
+   echo  "================================="
    red "0. 退出脚本"
-   echo "==========="
+   echo  "================================="
    reading "请输入选择(0-3): " choice
    echo ""
     case "${choice}" in
         1) install_frps ;;
         2) uninstall_frps ;; 
         3) cat $WORKDIR/frps.toml ;; 
-        4) download_check_script ;;
+        4) create_cron ;;
         5) kill_all_tasks ;;
         0) exit 0 ;;
         *) red "无效的选项，请输入 0 到 5" ;;
