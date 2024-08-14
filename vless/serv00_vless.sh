@@ -283,7 +283,7 @@ menu() {
    echo  "================================="
    red "0. 退出脚本"
    echo  "================================="
-   reading "请输入选择(0-3): " choice
+   reading "请输入选择(0-6): " choice
    echo ""
     case "${choice}" in
         1) install_vless ;;
@@ -293,7 +293,7 @@ menu() {
         5) madify_port ;;      
 	      5) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 5" ;;
+        *) red "无效的选项，请输入 0 到 6" ;;
     esac
 }
 menu
