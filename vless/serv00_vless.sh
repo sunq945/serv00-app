@@ -12,10 +12,10 @@ yellow() { echo -e "\e[1;33m$1\033[0m"; }
 purple() { echo -e "\e[1;35m$1\033[0m"; }
 reading() { read -p "$(red "$1")" "$2"; }
 
-USERNAME=$(whoami)
+
 HOSTNAME=$(hostname)
 
-export MYDOMAIN=${USERNAME}.serv00.net
+export MYDOMAIN=$USER.serv00.net
 
 CFG_ENCRYPTION="none" 
 CFG_SECURITY="none"
@@ -25,7 +25,21 @@ CFG_PATH="/?proxyip=proxyip.oracle.fxxk.dedyn.io"
 CFG_REMARKS="serv00_vless"
 
 
-[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/${USERNAME}.ct8.pl/vless" || WORKDIR="/usr/home/$USER/domains/$MYDOMAIN/vless"
+
+SERVER_TYPE=$(echo $HOSTNAME | awk -F'.' '{print $2}')
+
+if [ $SERVER_TYPE == "ct8" ];then
+    DOMAIN=$USER.ct8.pl
+elif [ $SERVER_TYPE == "serv00" ];then
+    DOMAIN=$USER.serv00.net
+else
+    DOMAIN="unknown-domain"
+fi
+
+
+
+
+[[ "$HOSTNAME" == "s1.ct8.pl" ]] && WORKDIR="/usr/home/$USER/domains/$DOMAIN/vless" || WORKDIR="/usr/home/$USER/domains/$DOMAIN/vless"
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 UUID_FILE="$WORKDIR/.vless_uuid"  # Define a location to store the UUID
@@ -37,6 +51,20 @@ else
     export UUID=$(uuidgen)  # Generate a new UUID
     echo "$UUID" > "$UUID_FILE"  # Save the UUID to the file
 fi
+
+
+
+get_ip() {
+ip=$(curl -s --max-time 2 ipv4.ip.sb)
+if [ -z "$ip" ]; then
+    if [[ "$HOSTNAME" =~ s[0-9]\.serv00\.com ]]; then
+        ip=${HOSTNAME/s/web}
+    else
+        ip="$HOSTNAME"
+    fi
+fi
+echo $ip
+}
 
 read_vless_port() {
     while true; do
@@ -108,17 +136,51 @@ download_vless() {
  fi
 }
 
-download_check_script(){
-  local path=$(pwd)
+CRON_CMD="/bin/sh $WORKDIR/checkvless.sh" 
+
+get_timer() {
+    while true; do
+        reading "请输入定时分钟数(0~59,${yellow}注意：输入0则取消定时${re}${red}): " time_out
+        if [[ "$time_out" =~ ^[0-9]+$ ]] && [ "$time_out" -ge -1 ] && [ "$time_out" -le 60 ]; then
+            green "你的定时分钟数为: $time_out"
+            if [ $time_out == "0" ];then
+              yellow "如果您已经设置过定时，以下即将为您取消定时检测运行状态"
+            fi
+            break
+        else
+            yellow "输入错误，请重新输入分钟数(0~59)"
+        fi
+    done
+}
+create_cron(){
+  local path=$(pwd)  
   cd $WORKDIR
-  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/checkvless.sh -o checkvless.sh && chmod +x checkvless.sh
-  if [ -f "./checkvless.sh" ];then
-    echo -e "${green} 下载 checkvless.sh 成功， 文件位置： ${purple}"$WORKDIR/checkvless.sh" ${re}"
-    echo -e "${yellow} 你可以在vps的面板上找到cron job,进去之后 点击 “ Add cron job” 添加定时任务，建议定时为3分钟（Minuts填Every 和 3 ，其他时间选项填Each Time）， 命令行填写:
-    ${green}/bin/sh $WORKDIR/checkvless.sh
-    ${re}"
+  get_timer  
+  if [ ! -f ./checkvless.sh ];then  
+  echo -e "${green} 正在下载 checkvless.sh  ${re}"
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vless/checkvless.sh -o checkvless.sh && chmod +x checkvless.sh 
+  fi
+
+  cron_record=$(crontab -l | grep -F "* * $CRON_CMD")
+  if [ -z "$cron_record" ];then
+    if [ $time_out != "0" ];then
+      (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+      green "设置定时检测运行状态成功"
+    fi
   else
-    echo -e "${red} 下载checkvless.sh失败,请重新下载 ${re}"
+    #echo $cron_record
+    if [  $time_out != "0" ];then
+      r_time=$(echo ${cron_record:2}| awk -F' ' '{print $1}')
+      if [ $r_time != $time_out ] ;then        
+        (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+        (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+        green "设置定时检测运行状态成功"
+      fi
+    else
+      (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+      green "取消定时检测运行状态成功"
+    fi
+
   fi
   cd $path
 } 
@@ -213,7 +275,7 @@ menu() {
    echo  "================================="
    green "3. 查看节点信息"
    echo  "================================="
-   green "4. 下载检测脚本checkvless.sh"
+   green "4. 设置定时检测运行状态？"
    echo  "================================="
    yellow "5. 修改端口"
    echo  "=================================" 
@@ -227,7 +289,7 @@ menu() {
         1) install_vless ;;
         2) uninstall_vless ;; 
         3) cat $WORKDIR/vless_link.txt ;; 
-	      4) download_check_script ;;  
+	      4) create_cron ;;  
         5) madify_port ;;      
 	      5) kill_all_tasks ;;
         0) exit 0 ;;
