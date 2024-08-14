@@ -105,7 +105,9 @@ uninstall_vless() {
        [Yy])
           ps aux | grep app.js | grep -v grep | awk '{print $2}' | xargs kill -9
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvless.log
-          echo -e "${green} 卸载成功${re}"
+          echo -e "${green} 卸载成功${re}"          
+          del_cron
+          green "已取消定时检测运行状态"
           ;;
         [Nn]) exit 0 ;;
     	*) red "无效的选择，请输入y或n" && menu ;;
@@ -152,6 +154,16 @@ get_timer() {
         fi
     done
 }
+
+
+del_cron(){
+  (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+}
+
+add_cron(){
+  (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+}
+
 create_cron(){
   local path=$(pwd)  
   cd $WORKDIR
@@ -164,7 +176,7 @@ create_cron(){
   cron_record=$(crontab -l | grep -F "* * $CRON_CMD")
   if [ -z "$cron_record" ];then
     if [ $time_out != "0" ];then
-      (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
+      add_cron
       green "设置定时检测运行状态成功"
     fi
   else
@@ -172,12 +184,12 @@ create_cron(){
     if [  $time_out != "0" ];then
       r_time=$(echo ${cron_record:2}| awk -F' ' '{print $1}')
       if [ $r_time != $time_out ] ;then        
-        (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
-        (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
-        green "设置定时检测运行状态成功"
+        del_cron
+        add_cron
+        green "修改定时检测运行状态成功"
       fi
     else
-      (crontab -l | grep -v -F "* * $CRON_CMD")| crontab -
+      del_cron
       green "取消定时检测运行状态成功"
     fi
 
