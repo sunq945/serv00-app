@@ -45,7 +45,7 @@ read_vmess_port() {
     while true; do
         reading "请输入服务器端口 (面板开放的tcp端口): " vmess_port
         if [[ "$vmess_port" =~ ^[0-9]+$ ]] && [ "$vmess_port" -ge 1 ] && [ "$vmess_port" -le 65535 ]; then
-            green "你的frps端口为: $vmess_port"
+            green "你的vmess端口为: $vmess_port"
             export PORT=$vmess_port
             break
         else
