@@ -25,7 +25,7 @@ else
     DOMAIN="unknown-domain"
 fi
 
-[[ $SERVER_TYPE == "ct8" ]] && WORKDIR="/usr/home/$USER/domains/$DOMAIN/vmess" || WORKDIR="/usr/home/$USER/domains/$DOMAIN/vmess"
+WORKDIR="/usr/home/$USER/domains/$DOMAIN/vmess" 
 [ -d "$WORKDIR" ] || (mkdir -p "$WORKDIR" && chmod 777 "$WORKDIR")
 
 
@@ -65,6 +65,7 @@ reading "\n确定继续安装吗？【y/n】: " choice
         cd $WORKDIR
         read_vmess_port     
         download_xray_core && wait
+        load_ipconfig
         generate_config        
         run_vmess && sleep 3   
       ;;
@@ -79,6 +80,7 @@ uninstall_vmess() {
        [Yy])
           pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9  
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvmess.log
+          rm -rf $WORKDIR/ipconfig.json
            echo -e "${green} 卸载完成 ${re}"
           del_cron
           green "已取消定时检测运行状态"
@@ -151,15 +153,21 @@ add_cron(){
   (crontab -l; echo "*/$time_out * * * * $CRON_CMD") | crontab -
 }
 
+
+get_checkvmess_sh(){
+  if [ ! -f ./checkvmess.sh ];then  
+  echo -e "${green} 正在下载 checkvmess.sh  ${re}"
+  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/checkvmess.sh -o checkvmess.sh && chmod +x checkvmess.sh
+  green "下载 checkvmess.sh 完毕" 
+  fi  
+}
+
+
 create_cron(){
   local path=$(pwd)  
   cd $WORKDIR
   get_timer  
-  if [ ! -f ./checkvmess.sh ];then  
-  echo -e "${green} 正在下载 checkvmess.sh  ${re}"
-  curl -fsSL  https://raw.githubusercontent.com/sunq945/serv00-app/main/vmess/checkvmess.sh -o checkvmess.sh && chmod +x checkvmess.sh
-  fi
-
+  get_checkvmess_sh
   cron_record=$(crontab -l | grep -F "* * $CRON_CMD")
   if [ -z "$cron_record" ];then
     if [ $time_out != "0" ];then
@@ -200,7 +208,7 @@ echo $ip
 # Generating Configuration Files
 generate_config() {
 
-IP=$(get_ip)
+IP=$current_ip
 
   cat > generator.json << EOF
 {
@@ -231,8 +239,7 @@ echo -e "${green} 已保存uuid和端口号到:$(pwd)/generator.json ${re}"
 
 show_link(){
   cat $WORKDIR/vmess_link.txt 
-  echo -e "\n"
-  echo -e "\n"
+  echo -e "\n\n"
 }
 # running files
 run_vmess() { 
@@ -248,6 +255,8 @@ run_vmess() {
   fi
 }
 
+
+
 madify_port(){
   local path=$(pwd)
   cd $WORKDIR
@@ -258,12 +267,102 @@ madify_port(){
 }
 
 
+#-----------------------------------------------------------------------------
+
+
+
+
+make_ip_config(){
+make_ip_context(){
+    local j=0
+    local content=""
+    local use_ip
+    for i in $(devil vhost list public | grep serv00|awk '{print $1}')
+    do   
+    ((j++))
+    content="$content\"$i\",\n" 
+    using_ip=$i
+    done  
+    content="\"ip\":[\n${content%???}\n],\n\"using_ip\":\"$using_ip\"\n" #${content%???}去掉content中最后三个字符（,\n\n）
+    echo -e $content
+}
+
+  cat > ipconfig.json <<EOF
+  {
+  $(make_ip_context)  
+  }
+EOF
+}
+
+load_ipconfig(){
+    if [ ! -f ipconfig.json ]; then
+        make_ip_config    
+    fi  
+    export current_ip="$(jq -r '.using_ip' ipconfig.json )" 
+    array=($(jq -r '.ip[]' ipconfig.json ))
+    toatle=${#array[@]}
+    pos=0
+    for entry in "${array[@]}"; do   
+        ((pos++))
+        if [ $entry == $current_ip ];then
+            break
+        fi        
+    done
+
+}
+
+
+
+choose_ip() {
+ read_choice() {
+    while true; do
+        reading "请输入IP顺序号（1~$toatle）: " ip_pos
+        if [[ "$ip_pos" =~ ^[0-9]+$ ]] && [ "$ip_pos" -ge 1 ] && [ "$ip_pos" -le $toatle ]; then
+            green "你填的IP顺序号为: $ip_pos"
+            use_ip=${array[$ip_pos-1]}
+            echo $use_ip
+            break
+        else
+            yellow "输入错误，请重新输入（1~$toatle）"
+        fi
+    done
+} 
+   green "共有 $toatle 个IP可用"
+   yellow "当前正在使用第 $pos 个IP"
+   read_choice
+   local content=$(jq ".using_ip=\"$use_ip\"" ipconfig.json) 
+   echo $content | jq . > ipconfig.json
+}
+
+
+manual_ip(){
+
+load_generator_json(){
+  UUID="$(jq -r '.server.uuid' generator.json )" 
+  PORT="$(jq -r '.server.port' generator.json )"   
+   
+}  
+cd $WORKDIR
+load_ipconfig
+load_generator_json
+choose_ip
+load_ipconfig
+generate_config
+
+yellow "正在重启服务...."
+(ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" |awk '{print $2}' | xargs  -r kill -9)> /dev/null 2>&1
+run_vmess && sleep 3  
+show_link
+}
+#-----------------------------------------------------------------------------
+
+
 #主菜单
 menu() {
    clear
    #while true;do
    echo ""
-   purple "============ vmess 一键安装脚本 =======\n"
+   purple "============ vmess 一键安装脚本 v 1.0.1 =======\n"
    echo -e "${green}脚本地址：${re}${yellow}https://github.com/sunq945/serv00-app/tree/main/vmess${re}\n"
    purple "转载请注明出处，请勿滥用\n"
    green "1. 安装vmess"
@@ -272,25 +371,28 @@ menu() {
    echo  "=============================="
    green "3. 查看节点信息"
    echo  "=============================="
-   green "4. 设置定时检测运行状态？"
+   green "4. 手选公网IP "
+   echo  "========================="
+   green "5. 设置定时检测运行状态？"
    echo  "=============================="
-   yellow "5. 修改端口"  
+   yellow "6. 修改端口"  
    echo  "=============================="
-   yellow "6. 清理所有进程"
+   yellow "7. 清理所有进程"
    echo  "=============================="
    red "0. 退出脚本"
    echo  "=============================="
-   reading "请输入选择(0-6): " choice
+   reading "请输入选择(0-7): " choice
    echo ""
     case "${choice}" in
         1) install_vmess ;;
         2) uninstall_vmess ;; 
         3) show_link ;; 
-        4) create_cron ;;
-        5) madify_port ;;
-        6) kill_all_tasks ;;
+        4) manual_ip ;;
+        5) create_cron ;;
+        6) madify_port ;;
+        7) kill_all_tasks ;;
         0) exit 0 ;;
-        *) red "无效的选项，请输入 0 到 6" ;;
+        *) red "无效的选项，请输入 0 到 7" ;;
     esac
     #done;
 }
