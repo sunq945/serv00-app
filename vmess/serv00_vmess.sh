@@ -56,6 +56,7 @@ read_vmess_port() {
 
 
 install_vmess() {
+(ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" |awk '{print $2}' | xargs  -r kill -9)> /dev/null 2>&1
 echo -e "${yellow}本脚本只安装frps穿透代理服务器和启动脚本${re}"
 echo -e "${yellow}开始运行前，请确保在面板${purple}已开放1个tcp端口${re}"
 echo -e "${yellow}面板${purple}Additional services${yellow}中的${purple}Run your own applications${yellow}已开启为${purplw}Enabled${yellow}状态${re}"
@@ -78,7 +79,8 @@ uninstall_vmess() {
   reading "\n确定要卸载吗？【y/n】: " choice
     case "$choice" in
        [Yy])
-          pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9  
+          (ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" |awk '{print $2}' | xargs  -r kill -9)> /dev/null 2>&1
+          # pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9  
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvmess.log
            echo -e "${green} 卸载完成 ${re}"
           del_cron
@@ -351,7 +353,6 @@ generate_config
 yellow "正在重启服务...."
 (ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" |awk '{print $2}' | xargs  -r kill -9)> /dev/null 2>&1
 run_vmess && sleep 3  
-show_link
 }
 #-----------------------------------------------------------------------------
 
