@@ -80,7 +80,6 @@ uninstall_vmess() {
        [Yy])
           pgrep -f "vmess_config.json" | grep -v grep | xargs kill -9  
           rm -rf $WORKDIR /usr/home/$USER/logs/checkvmess.log
-          rm -rf $WORKDIR/ipconfig.json
            echo -e "${green} 卸载完成 ${re}"
           del_cron
           green "已取消定时检测运行状态"
